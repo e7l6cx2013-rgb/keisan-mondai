@@ -14,8 +14,9 @@ const PAGES={"addition":"<!doctype html><html lang=\"ja\"><meta charset=\"utf-8\
 const TITLES={"addition":"たし算のひっ算","subtraction":"ひき算のひっ算","multiplication":"かけ算のひっ算","division":"わり算のひっ算"};
 const frame=document.querySelector('#frame');
 function prepare(html){
-  const bridge=`<script>document.addEventListener("click",function(e){const a=e.target.closest('a[href="index.html"]');if(a){e.preventDefault();parent.postMessage({type:"show-menu"},"*");}});<\/script>`;
-  return html.replace(/<title>.*?<\/title>/,'<title>算数れんしゅう<\/title>')+bridge;
+  return html
+    .replace(/<title>.*?<\/title>/,'<title>算数れんしゅう<\/title>')
+    .replace(/<a href="index\.html"><button>メニューへ<\/button><\/a>/g,'');
 }
 function showMenu(){document.body.classList.remove('active');frame.removeAttribute('srcdoc');document.querySelector('.brand h1').textContent='算数れんしゅう';}
 function openPage(id){frame.srcdoc=prepare(PAGES[id]);document.body.classList.add('active');document.querySelector('.brand h1').textContent=TITLES[id]||'算数れんしゅう';setTimeout(()=>frame.focus(),0);}
