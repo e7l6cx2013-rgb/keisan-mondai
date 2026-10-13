@@ -20,7 +20,9 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.15;margin:0;letter-spacing:0}
 .mark{display:flex;align-items:center;justify-content:center;width:92px;height:92px;border-radius:8px;background:var(--soft);color:var(--accent);font-size:54px;font-weight:900;font-variant-numeric:tabular-nums}
 .label{display:block;font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1.25}
 .sub{display:block;margin-top:10px;color:#5f776e;font-size:16px;font-weight:700;line-height:1.5}
-.wide{grid-column:1 / 2}
+.wide{grid-column:1 / -1}
+.addition{--accent:#db5c64;--soft:#fff0f1}
+.subtraction{--accent:#7b65d8;--soft:#f0edff}
 .multiply{--accent:#139ee8;--soft:#e8f6ff}
 .divide{--accent:#24876d;--soft:#e9f7f1}
 .kanji{--accent:#c47b16;--soft:#fff3de}
@@ -46,6 +48,14 @@ main{padding:28px 16px}
     <div class="date">がんばりの記録つき</div>
   </header>
   <nav class="menu" aria-label="れんしゅうを選ぶ">
+    <a class="tile addition" href="たし算のひっ算れんしゅう.html">
+      <span class="mark">＋</span>
+      <span><span class="label">たし算のひっ算</span><span class="sub">2けた・3けたのたし算</span></span>
+    </a>
+    <a class="tile subtraction" href="ひき算のひっ算れんしゅう.html">
+      <span class="mark">−</span>
+      <span><span class="label">ひき算のひっ算</span><span class="sub">2けた・3けたのひき算</span></span>
+    </a>
     <a class="tile multiply" href="かけ算の筆算れんしゅう.html">
       <span class="mark">×</span>
       <span><span class="label">かけ算のひっ算</span><span class="sub">2けた・3けた × 1けた</span></span>
