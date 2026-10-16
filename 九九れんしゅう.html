@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>九九れんしゅう</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f5ee;color:#253a37;font-family:system-ui,sans-serif}
+main{max-width:980px;margin:auto;padding:30px 22px}
+header{display:flex;justify-content:space-between;align-items:center;gap:15px}
+small{color:#47776c;font-weight:700}
+h1{font-size:clamp(28px,5vw,40px);margin:8px 0;letter-spacing:0}
+button,select{font:inherit;cursor:pointer;border:1px solid #c4d6ce;border-radius:12px;padding:12px;background:white;color:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #ecb741;outline-offset:3px}
+.header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.primary{background:#247d66;color:white;border:0;font-weight:700}
+.intro{line-height:1.8}
+.tools{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:24px 0}
+label{display:flex;gap:8px;align-items:center}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{background:white;border:1px solid #dce4da;border-radius:18px;padding:22px;box-shadow:0 5px 0 #e5e9df;min-width:0}
+.card h2{font-size:15px;color:#60796f;margin:0 0 18px}
+.formula{display:flex;align-items:center;justify-content:center;gap:12px;min-height:92px;font-size:clamp(34px,6vw,52px);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.answer{width:88px;height:82px;border:3px solid #358ba5;border-radius:9px;background:#f8fcff;color:#253a37;text-align:center;font:inherit;font-size:42px;font-weight:800;caret-color:#247d66}
+.answer.ok{border-color:#2c9474;background:#ecf8f0}
+.answer.bad{border-color:#ce5b54;background:#fff0ee;animation:shake .25s}
+.answer:disabled{opacity:1;color:#253a37;-webkit-text-fill-color:#253a37}
+.msg{text-align:center;min-height:26px;margin:16px 0 0;font-weight:700;color:#536b63}
+.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:24px 0;flex-wrap:wrap}
+.note{font-size:13px;line-height:1.7;color:#62756d}
+.rewards{margin:24px 0;background:#fff;border:1px solid #dce4da;border-radius:18px;padding:20px}
+.rewards h2{margin:0 0 8px;font-size:22px}
+.reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.reward-track{padding:12px;background:#f6f8ee;border-radius:12px}
+.reward-track strong{display:block;font-size:15px}
+.marks{display:grid;grid-template-columns:repeat(auto-fill,32px);gap:2px 6px;max-width:100%;margin-top:6px}
+.mark{text-align:center;min-width:0}
+.mark-star{display:block;font-size:24px;line-height:1.25}
+.mark-miss{display:block;font-size:12px;line-height:1.4;color:#7a6a38;font-variant-numeric:tabular-nums}
+.stars{font-size:24px;line-height:1.6;min-height:38px}
+.reward-count{font-size:13px;color:#62756d}
+.challenge{display:block;margin-top:8px;padding:8px 10px;border-radius:9px;background:#fff7d7;border-color:#e4c05b;font-weight:700}
+.best{display:block;margin-top:6px;font-size:12px;color:#62756d}
+details{margin-top:26px;background:#eaf0e8;border-radius:12px;padding:16px}
+summary{cursor:pointer;font-weight:700}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media(max-width:650px){main{padding:20px 16px}.cards,.reward-grid{grid-template-columns:1fr}header{align-items:flex-start}.formula{gap:8px}.answer{width:76px;height:72px;font-size:36px}}
+</style>
+<main>
+  <header>
+    <div><small>小学3年生・算数</small><h1>九九れんしゅう</h1></div>
+    <div class="header-actions"><a href="index.html"><button>メニューへ</button></a><button id="sound" aria-pressed="false">音：なし</button></div>
+  </header>
+  <p class="intro">九九の答えや、かける数を□に入れよう。<br>せいかいすると、次の問題へ自動ですすみます。</p>
+  <section class="tools" aria-label="れんしゅう設定">
+    <label>もんだい<select id="mode"><option value="answer">2 × 3 ＝ □</option><option value="factor">2 × □ ＝ 6</option></select></label>
+    <label>だん<select id="dan"><option value="all">すべて</option><option value="1">1のだん</option><option value="2">2のだん</option><option value="3">3のだん</option><option value="4">4のだん</option><option value="5">5のだん</option><option value="6">6のだん</option><option value="7">7のだん</option><option value="8">8のだん</option><option value="9">9のだん</option></select></label>
+    <label>問題数<select id="count"><option value="10">10問</option><option value="20">20問</option></select></label>
+    <label><input id="erase" type="checkbox" checked>まちがえた数字を消す</label>
+  </section>
+  <div class="cards" id="cards"></div>
+  <div class="footer"><strong id="score" aria-live="polite">できた問題：0問</strong><button class="primary" id="next">あたらしい問題 ↻</button></div>
+  <p class="note">キーボードでも、タブレットの数字キーボードでも入力できます。色とメッセージでも正誤がわかります。</p>
+  <section class="rewards" aria-labelledby="reward-title">
+    <h2 id="reward-title">⭐️ がんばりの記録</h2>
+    <p class="note">選んでいる問題・段の記録です。ぜんぶクリアすると⭐️が1つふえ、20個たまるとタイムチャレンジが出ます。</p>
+    <div id="reward-grid" class="reward-grid" aria-live="polite"></div>
+    <p id="reward-storage" class="note"></p>
+  </section>
+  <details><summary>先生・おうちの方へ</summary><p>「積を答える問題」と「かける数を答える問題」を切り替えられます。正答すると次の問題へ自動で移動します。選んだ出題形式・段・問題数ごとに、星と間違えた回数、タイムチャレンジの最高記録をこの端末・ブラウザーに保存します。タイムチャレンジは60秒で、5回間違えるとその場で終了します。</p></details>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const modeLabels={answer:'答えを入れる',factor:'かける数を入れる'};
+const rewardKey='kuku-course-stars-v1';
+let total=0,round=0,currentMistakes=0,rewards={},mistakes={},timeBest={},storageOK=true;
+let timeMode=false,timeLeft=0,timeDone=0,timeMistakes=0,timeTimer,timeCourse='',sound=false,audio;
+try{const saved=JSON.parse(localStorage.getItem(rewardKey)||'{}');if(saved&&typeof saved==='object'){rewards=saved.rewards&&typeof saved.rewards==='object'?saved.rewards:{};mistakes=saved.mistakes&&typeof saved.mistakes==='object'?saved.mistakes:{};timeBest=saved.timeBest&&typeof saved.timeBest==='object'?saved.timeBest:{}}}catch(e){storageOK=false}
+function key(mode=$('#mode').value,dan=$('#dan').value,count=$('#count').value){return mode+'-'+dan+'-'+count}
+function courseName(mode=$('#mode').value,dan=$('#dan').value){return modeLabels[mode]+'・'+(dan==='all'?'すべての段':dan+'の段')}
+function saveRewards(){try{localStorage.setItem(rewardKey,JSON.stringify({rewards,mistakes,timeBest}))}catch(e){storageOK=false}}
+function renderRewards(){const mode=$('#mode').value,dan=$('#dan').value;$('#reward-grid').innerHTML=[10,20].map(n=>{const k=key(mode,dan,n),stars=Number.isSafeInteger(rewards[k])?rewards[k]:0,miss=Array.isArray(mistakes[k])?mistakes[k]:[],shown=Math.min(stars,30),marks=Array.from({length:shown},(_,i)=>'<span class="mark"><span class="mark-star">⭐️</span><span class="mark-miss">'+(miss[i]??0)+'</span></span>').join('')+(stars>30?'<span class="mark"><span class="mark-star">＋'+(stars-30)+'</span><span class="mark-miss"></span></span>':''),challenge=stars>=20?'<button class="challenge" data-challenge data-mode="'+mode+'" data-dan="'+dan+'" data-count="'+n+'">タイムチャレンジ</button><span class="best">最高 '+(timeBest[k]||0)+'問</span>':'';return '<div class="reward-track"><strong>'+courseName(mode,dan)+'・'+n+'問</strong>'+(stars?'<div class="marks" aria-label="それぞれのまちがえ回数 '+miss.slice(0,shown).join(' ')+'">'+marks+'</div>':'<div class="stars">まだこれから！</div>')+'<span class="reward-count">'+stars+'回クリア</span>'+challenge+'</div>'}).join('');$('#reward-storage').textContent=storageOK?'この端末・ブラウザーに記録します。共用端末では、使った人みんなの記録になります。':'このブラウザーでは保存できないため、記録は画面を閉じるまでです。'}
+function earnStar(){const k=key(),stars=Number.isSafeInteger(rewards[k])?rewards[k]:0;rewards[k]=stars+1;mistakes[k]=[...(Array.isArray(mistakes[k])?mistakes[k]:[]),currentMistakes];saveRewards();renderRewards()}
+function beep(ok){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.value=ok?660:180;g.gain.setValueAtTime(.07,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.16);o.start();o.stop(audio.currentTime+.17)}catch(e){}}
+function shuffle(values){for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}return values}
+function problems(count,dan){const bases=dan==='all'?Array.from({length:81},(_,i)=>[Math.floor(i/9)+1,i%9+1]):Array.from({length:9},(_,i)=>[Number(dan),i+1]),out=[];while(out.length<count)out.push(...shuffle([...bases]));return out.slice(0,count)}
+function updateScore(count){$('#score').textContent=timeMode?'タイムチャレンジ：'+timeDone+'問　ミス '+timeMistakes+'/5　のこり '+timeLeft+'秒':'できた問題：'+total+' / '+count+'問'}
+function noteMistake(){currentMistakes++;if(timeMode){timeMistakes++;updateScore(Number($('#count').value));if(timeMistakes>=5){endTimeChallenge();return true}}return false}
+function stopTimeChallenge(){if(timeTimer)clearInterval(timeTimer);timeTimer=null;timeMode=false}
+function endTimeChallenge(){if(!timeMode)return;const best=Math.max(timeBest[timeCourse]||0,timeDone);timeBest[timeCourse]=best;saveRewards();renderRewards();timeMode=false;if(timeTimer)clearInterval(timeTimer);timeTimer=null;document.querySelectorAll('.answer').forEach(x=>x.disabled=true);$('#score').textContent='タイムチャレンジ終了：'+timeDone+'問・ミス '+timeMistakes+'（最高 '+best+'問）'}
+function startTimeChallenge(mode,dan,count){stopTimeChallenge();$('#mode').value=mode;$('#dan').value=dan;$('#count').value=count;timeMode=true;timeLeft=60;timeDone=0;timeMistakes=0;timeCourse=key(mode,dan,count);newRound();updateScore(Number(count));timeTimer=setInterval(()=>{timeLeft--;updateScore(Number($('#count').value));if(timeLeft<=0)endTimeChallenge()},1000)}
+function newRound(){round++;total=0;currentMistakes=0;const mode=$('#mode').value,dan=$('#dan').value,count=Number($('#count').value),items=problems(count,dan);let rewarded=false;updateScore(count);$('#cards').replaceChildren();items.forEach(([a,b],index)=>{const expected=String(mode==='answer'?a*b:b),card=document.createElement('article');card.className='card';card.innerHTML='<h2>問題 '+(index+1)+'</h2><div class="formula"></div><p class="msg" role="status">□に数字を入れよう</p>';const formula=card.querySelector('.formula'),msg=card.querySelector('.msg'),input=document.createElement('input');input.className='answer';input.type='text';input.inputMode='numeric';input.autocomplete='off';input.maxLength=2;input.dataset.expected=expected;input.setAttribute('aria-label','問題'+(index+1)+'の答え');if(mode==='answer'){formula.append(String(a),' × ',String(b),' ＝ ',input)}else{formula.append(String(a),' × ',input,' ＝ ',String(a*b))}input.addEventListener('input',()=>check(input));$('#cards').append(card);
+function focusNext(){card.nextElementSibling?.querySelector('.answer:not([disabled])')?.focus()}
+function complete(){if(input.disabled)return;input.classList.add('ok');input.disabled=true;msg.textContent='◎ せいかい！ よくできたね';beep(true);total++;if(timeMode){timeDone++;updateScore(count);if(timeLeft>0){if(total===count){const finished=round;setTimeout(()=>{if(timeMode&&round===finished)newRound()},450)}else setTimeout(focusNext,0)}}else{if(total===count&&!rewarded){rewarded=true;earnStar()}$('#score').textContent=total===count?'⭐️ '+count+'問ぜんぶできたね！ 星を1つゲット！':'できた問題：'+total+' / '+count+'問';if(total===count){const finished=round;setTimeout(()=>{if(round===finished)newRound()},1500)}else setTimeout(focusNext,0)}}
+function check(el){if(el.disabled)return;el.value=el.value.normalize('NFKC').replace(/[^0-9]/g,'').slice(0,2);el.classList.remove('bad');if(!el.value){msg.textContent='□に数字を入れよう';return}if(expected.startsWith(el.value)&&el.value.length<expected.length){msg.textContent='つづけて数字を入れよう';return}if(el.value===expected){complete();return}el.classList.add('bad');if(noteMistake())return;beep(false);msg.textContent='もう一度 考えてみよう';if($('#erase').checked)el.value=''}
+});setTimeout(()=>$('#cards .answer:not([disabled])')?.focus(),0)}
+$('#reward-grid').onclick=e=>{const b=e.target.closest('[data-challenge]');if(b)startTimeChallenge(b.dataset.mode,b.dataset.dan,b.dataset.count)};
+for(const id of ['mode','dan','count'])$('#'+id).onchange=()=>{stopTimeChallenge();renderRewards();newRound()};
+$('#next').onclick=()=>{stopTimeChallenge();newRound()};
+$('#sound').onclick=()=>{sound=!sound;$('#sound').textContent='音：'+(sound?'あり':'なし');$('#sound').setAttribute('aria-pressed',String(sound));if(sound)beep(true)};
+renderRewards();newRound();
+</script>
+</html>
